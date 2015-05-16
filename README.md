@@ -1,3 +1,5 @@
+Development will occur through the use of Pull Requests.  Check the [Pull Requests](https://github.com/mikeburke106/whiteboard/pulls) section for the status of ongoing development.
+
 ### Whiteboard Challenge
 
 You’ve decided the world needs another (better, of course) drawing app for Android.  You want your drawing app to be simple but delightful.  To make your app useful, your app is going to have the following basic features:
