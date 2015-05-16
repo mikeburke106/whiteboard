@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,9 +13,7 @@ import com.burkeapps.whiteboard.views.WhiteboardView;
 public class MainActivity extends ActionBarActivity {
 
     WhiteboardView whiteboard;
-    MenuItem colorsItem;
-    MenuItem eraserItem;
-    MenuItem markerItem;
+    MenuItem colorsItem, eraserItem, markerItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +31,16 @@ public class MainActivity extends ActionBarActivity {
         colorsItem = menu.findItem(R.id.action_colors);
         activateMarker();
         return true;
+    }
+
+    private void redrawMenuItems(int whiteboardMode){
+        boolean eraseMode = (whiteboardMode == WhiteboardView.MODE_ERASER);
+
+        // if whiteboard is in erase mode, hide eraser and colors menu items and
+        // show marker menu item.  Otherwise, show the opposite.
+        eraserItem.setVisible( ! eraseMode );
+        colorsItem.setVisible( ! eraseMode );
+        markerItem.setVisible(eraseMode);
     }
 
     @Override
@@ -64,7 +71,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode != 0 || resultCode != Activity.RESULT_OK) return;
         int color = ColorSelectActivity.getColor(data);
-        log("onActivityResult, color=" + color);
         whiteboard.setDrawColor(color);
     }
 
@@ -74,23 +80,15 @@ public class MainActivity extends ActionBarActivity {
 
     private void activateEraser(){
         whiteboard.activateEraser();
-        eraserItem.setVisible(false);
-        markerItem.setVisible(true);
-        colorsItem.setVisible(false);
+        redrawMenuItems(whiteboard.getTouchMode());
     }
 
     private void activateMarker(){
         whiteboard.activateMarker();
-        eraserItem.setVisible(true);
-        markerItem.setVisible(false);
-        colorsItem.setVisible(true);
+        redrawMenuItems(whiteboard.getTouchMode());
     }
 
     private void changeWhiteboardColor() {
         startActivityForResult(new Intent(MainActivity.this, ColorSelectActivity.class), 0);
-    }
-
-    private static void log(String msg){
-        Log.d("MainActivity", msg);
     }
 }

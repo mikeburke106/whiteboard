@@ -11,14 +11,26 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * TODO: document your custom view class.
+ * A WhiteboardView provides a blank whiteboard which is available for drawing.  Different colors
+ * of markers can be used on the whiteboard and previous drawings can be erased using an eraser
+ * (marker with a white color) or using the clear() method.
  */
 public class WhiteboardView extends View {
 
     // TODO: Read these values from resources
     private static int DEFAULT_MARKER_COLOR = Color.BLACK;
-    private static int DEFAULT_ERASER_COLOR = Color.WHITE;
     private static int DEFAULT_STROKE_WIDTH = 30;
+    // TODO: using a white color for eraser won't work with any non-white background
+    private static int DEFAULT_ERASER_COLOR = Color.WHITE;
+
+    /**
+     * Constant indicating current whiteboard is in erase mode.
+     */
+    public static int MODE_ERASER = 0;
+    /**
+     * Constant indicating current whiteboard is in marker mode.
+     */
+    public static int MODE_MARKER = 1;
 
     Path touchPath;
     Paint touchPaint, canvasPaint;
@@ -26,6 +38,7 @@ public class WhiteboardView extends View {
     Canvas touchCanvas;
     int canvasHeight, canvasWidth;
     int markerColor, eraserColor;
+    int touchMode;
 
     public WhiteboardView(Context context) {
         super(context);
@@ -46,15 +59,16 @@ public class WhiteboardView extends View {
         // Load attributes
 
         // lazily instantiate our objects
-        initMarkerColors();
+        initColorsAndMode();
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
     }
 
-    private void initMarkerColors() {
+    private void initColorsAndMode() {
         markerColor = DEFAULT_MARKER_COLOR;
         eraserColor = DEFAULT_ERASER_COLOR;
+        touchMode = MODE_MARKER;
     }
 
     private void initTouchPaint(){
@@ -109,14 +123,14 @@ public class WhiteboardView extends View {
                 // user touched the screen - start path at this point
                 touchPath.moveTo(event.getX(), event.getY());
                 break;
+            case MotionEvent.ACTION_MOVE:
+                // user moved their touch, connect the two points with a line
+                touchPath.lineTo(event.getX(), event.getY());
+                break;
             case MotionEvent.ACTION_UP:
                 // user released their touch, draw it on the canvas and reset the path
                 touchCanvas.drawPath(touchPath, touchPaint);
                 touchPath.reset();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                // user moved their touch, connect the two points with a line
-                touchPath.lineTo(event.getX(), event.getY());
                 break;
             default:
                 // don't care about this touch event - tell system we didn't process it
@@ -136,10 +150,13 @@ public class WhiteboardView extends View {
         canvas.drawPath(touchPath, touchPaint);
     }
 
-    /*
-    *  PUBLIC APIs
-    */
+    /* ********************************************************************************************
+    *                                       PUBLIC APIs
+    * ********************************************************************************************/
 
+    /**
+     * Clears all marks on the whiteboard.
+     */
     public void clear(){
         // re-initialize our touch objects
         initTouchPath();
@@ -149,24 +166,43 @@ public class WhiteboardView extends View {
         invalidate();
     }
 
+    /**
+     * Sets the color of the current marker.
+     *
+     * <b>Note: If whiteboard is in MODE_ERASER, this change will not activate
+     * until a drawable mode is entered.</b>
+     *
+     * @param color Color of the marker to set
+     */
     public void setDrawColor(int color){
         markerColor = color;
-        touchPaint.setColor(markerColor);
+        if(touchMode != MODE_ERASER){
+            touchPaint.setColor(markerColor);
+        }
     }
 
+    /**
+     * Enters whiteboard into MODE_ERASER.
+     */
     public void activateEraser(){
+        touchMode = MODE_ERASER;
         touchPaint.setColor(eraserColor);
     }
 
+    /**
+     * Enters whiteboard into MODE_MARKER.
+     */
     public void activateMarker(){
+        touchMode = MODE_MARKER;
         touchPaint.setColor(markerColor);
     }
 
-    public boolean isEraserActive(){
-        return (touchPaint.getColor() == eraserColor);
-    }
-
-    public boolean isMarkerActive(){
-        return (touchPaint.getColor() == markerColor);
+    /**
+     * Returns the current mode of this whiteboard.
+     *
+     * @return The mode of this whiteboard
+     */
+    public int getTouchMode(){
+        return touchMode;
     }
 }

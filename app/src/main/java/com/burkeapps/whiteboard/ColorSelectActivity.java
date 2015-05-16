@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,7 +14,7 @@ public class ColorSelectActivity extends Activity {
 
     private static final String COLOR_INTENT_STR = "com.burkeapps.whiteboard.ColorSelectActivity.color";
 
-    private enum DrawColor{
+    enum DrawColor{
         BLACK("Black", Color.BLACK),
         BLUE("Blue", Color.BLUE),
         DARK_GRAY("Dark Gray", Color.DKGRAY),
@@ -54,7 +53,6 @@ public class ColorSelectActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 DrawColor drawColor = ((ArrayAdapter<DrawColor>) parent.getAdapter()).getItem(position);
-                log("onItemClick, draw color=" + drawColor);
                 int clickedColor = drawColor.color;
                 returnActivityResult(clickedColor);
             }
@@ -68,11 +66,14 @@ public class ColorSelectActivity extends Activity {
         finish();
     }
 
+    /**
+     * Reads the color value from an intent returned as a result.  If the color
+     * cannot be found, black will be returned as the default.
+     *
+     * @param data The intent returned as the result of this activity
+     * @return The color read from the input intent
+     */
     public static int getColor(Intent data){
         return data.getIntExtra(COLOR_INTENT_STR, Color.BLACK);
-    }
-
-    private static void log(String msg){
-        Log.d("MainActivity", msg);
     }
 }
