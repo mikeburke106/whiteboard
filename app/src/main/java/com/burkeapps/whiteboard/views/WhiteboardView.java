@@ -16,7 +16,8 @@ import android.view.View;
 public class WhiteboardView extends View {
 
     // TODO: Read these values from resources
-    private static int DEFAULT_PAINT_COLOR = Color.BLACK;
+    private static int DEFAULT_MARKER_COLOR = Color.BLACK;
+    private static int DEFAULT_ERASER_COLOR = Color.WHITE;
     private static int DEFAULT_STROKE_WIDTH = 30;
 
     Path touchPath;
@@ -24,6 +25,7 @@ public class WhiteboardView extends View {
     Bitmap canvasBitmap;
     Canvas touchCanvas;
     int canvasHeight, canvasWidth;
+    int markerColor, eraserColor;
 
     public WhiteboardView(Context context) {
         super(context);
@@ -44,16 +46,22 @@ public class WhiteboardView extends View {
         // Load attributes
 
         // lazily instantiate our objects
+        initMarkerColors();
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
+    }
+
+    private void initMarkerColors() {
+        markerColor = DEFAULT_MARKER_COLOR;
+        eraserColor = DEFAULT_ERASER_COLOR;
     }
 
     private void initTouchPaint(){
         if(touchPaint == null) {
             touchPaint = new Paint();
             touchPaint.setAntiAlias(true);
-            touchPaint.setColor(DEFAULT_PAINT_COLOR);
+            touchPaint.setColor(markerColor);
             touchPaint.setStyle(Paint.Style.STROKE);
             touchPaint.setStrokeWidth(DEFAULT_STROKE_WIDTH);
         }
@@ -132,12 +140,33 @@ public class WhiteboardView extends View {
     *  PUBLIC APIs
     */
 
-    public void erase(){
+    public void clear(){
         // re-initialize our touch objects
         initTouchPath();
         initCanvas();
 
         // re-draw the whiteboard
         invalidate();
+    }
+
+    public void setDrawColor(int color){
+        markerColor = color;
+        touchPaint.setColor(markerColor);
+    }
+
+    public void activateEraser(){
+        touchPaint.setColor(eraserColor);
+    }
+
+    public void activateMarker(){
+        touchPaint.setColor(markerColor);
+    }
+
+    public boolean isEraserActive(){
+        return (touchPaint.getColor() == eraserColor);
+    }
+
+    public boolean isMarkerActive(){
+        return (touchPaint.getColor() == markerColor);
     }
 }
