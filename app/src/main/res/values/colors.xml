@@ -1,0 +1,5 @@
+<resources>
+
+    <color name="whiteboard_default_marker_color">@android:color/black</color>
+
+</resources>

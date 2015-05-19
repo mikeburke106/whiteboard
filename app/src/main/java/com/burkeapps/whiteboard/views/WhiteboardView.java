@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -21,30 +19,23 @@ import com.burkeapps.whiteboard.R;
  */
 public class WhiteboardView extends View {
 
-    // TODO: Read these values from resources
-    private static int DEFAULT_MARKER_COLOR = Color.BLACK;
-    private static int DEFAULT_MARKER_THICKNESS = 30;
-    // TODO: using a white color for eraser won't work with any non-white background
-    private static int DEFAULT_ERASER_COLOR = Color.WHITE;
-
     /**
      * Constant indicating current whiteboard is in erase mode.
      */
-    public static int MODE_ERASER = 0;
+    public static final int MODE_ERASER = 0;
     /**
      * Constant indicating current whiteboard is in marker mode.
      */
-    public static int MODE_MARKER = 1;
+    public static final int MODE_MARKER = 1;
 
     Path touchPath;
     Paint touchPaint, canvasPaint;
     Bitmap canvasBitmap;
     Canvas touchCanvas;
     int canvasHeight, canvasWidth;
-    int markerColor = DEFAULT_MARKER_COLOR;
-    int eraserColor = DEFAULT_ERASER_COLOR;
+    int markerColor, eraserColor;
+    int markerThickness;
     int touchMode = MODE_MARKER;
-    int markerThickness = DEFAULT_MARKER_THICKNESS;
 
     public WhiteboardView(Context context) {
         super(context);
@@ -66,16 +57,23 @@ public class WhiteboardView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(attrs,
                 R.styleable.WhiteboardView, defStyle, 0);
 
-        markerColor = a.getColor(R.styleable.WhiteboardView_markerColor, markerColor);
+        markerColor = a.getColor(R.styleable.WhiteboardView_markerColor, getDefaultMarkerColor());
         markerThickness = a.getDimensionPixelSize(R.styleable.WhiteboardView_markerThickness,
-                markerThickness);
+                getDefaultMarkerThickness());
         touchMode = a.getInt(R.styleable.WhiteboardView_touchMode, touchMode);
-        Log.d("WhiteboardView", "touchMode: " + touchMode);
 
         // lazily instantiate our objects
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
+    }
+
+    private int getDefaultMarkerThickness() {
+        return (int) getContext().getResources().getDimension(R.dimen.whiteboard_marker_thickness);
+    }
+
+    private int getDefaultMarkerColor() {
+        return getContext().getResources().getColor(R.color.whiteboard_default_marker_color);
     }
 
     private void initTouchPaint(){
