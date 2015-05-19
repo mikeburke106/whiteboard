@@ -7,6 +7,8 @@
         android:background="#ffffff"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:markerColor="#000000"
+        app:touchMode="marker"
         />
 
 </FrameLayout>

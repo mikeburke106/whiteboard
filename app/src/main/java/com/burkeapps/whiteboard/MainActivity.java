@@ -29,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
         eraserItem = menu.findItem(R.id.action_eraser);
         markerItem = menu.findItem(R.id.action_marker);
         colorsItem = menu.findItem(R.id.action_colors);
-        activateMarker();
+        redrawMenuItems(whiteboard.getTouchMode());
         return true;
     }
 

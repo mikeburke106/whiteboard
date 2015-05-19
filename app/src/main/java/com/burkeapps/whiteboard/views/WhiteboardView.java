@@ -1,14 +1,18 @@
 package com.burkeapps.whiteboard.views;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.burkeapps.whiteboard.R;
 
 /**
  * A WhiteboardView provides a blank whiteboard which is available for drawing.  Different colors
@@ -19,7 +23,7 @@ public class WhiteboardView extends View {
 
     // TODO: Read these values from resources
     private static int DEFAULT_MARKER_COLOR = Color.BLACK;
-    private static int DEFAULT_STROKE_WIDTH = 30;
+    private static int DEFAULT_MARKER_THICKNESS = 30;
     // TODO: using a white color for eraser won't work with any non-white background
     private static int DEFAULT_ERASER_COLOR = Color.WHITE;
 
@@ -37,8 +41,10 @@ public class WhiteboardView extends View {
     Bitmap canvasBitmap;
     Canvas touchCanvas;
     int canvasHeight, canvasWidth;
-    int markerColor, eraserColor;
-    int touchMode;
+    int markerColor = DEFAULT_MARKER_COLOR;
+    int eraserColor = DEFAULT_ERASER_COLOR;
+    int touchMode = MODE_MARKER;
+    int markerThickness = DEFAULT_MARKER_THICKNESS;
 
     public WhiteboardView(Context context) {
         super(context);
@@ -57,27 +63,28 @@ public class WhiteboardView extends View {
 
     private void init(AttributeSet attrs, int defStyle) {
         // Load attributes
+        final TypedArray a = getContext().obtainStyledAttributes(attrs,
+                R.styleable.WhiteboardView, defStyle, 0);
+
+        markerColor = a.getColor(R.styleable.WhiteboardView_markerColor, markerColor);
+        markerThickness = a.getDimensionPixelSize(R.styleable.WhiteboardView_markerThickness,
+                markerThickness);
+        touchMode = a.getInt(R.styleable.WhiteboardView_touchMode, touchMode);
+        Log.d("WhiteboardView", "touchMode: " + touchMode);
 
         // lazily instantiate our objects
-        initColorsAndMode();
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
-    }
-
-    private void initColorsAndMode() {
-        markerColor = DEFAULT_MARKER_COLOR;
-        eraserColor = DEFAULT_ERASER_COLOR;
-        touchMode = MODE_MARKER;
     }
 
     private void initTouchPaint(){
         if(touchPaint == null) {
             touchPaint = new Paint();
             touchPaint.setAntiAlias(true);
-            touchPaint.setColor(markerColor);
+            touchPaint.setColor( (touchMode == MODE_ERASER) ? eraserColor : markerColor);
             touchPaint.setStyle(Paint.Style.STROKE);
-            touchPaint.setStrokeWidth(DEFAULT_STROKE_WIDTH);
+            touchPaint.setStrokeWidth(markerThickness);
         }
     }
 

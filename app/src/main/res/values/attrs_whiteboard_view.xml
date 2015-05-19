@@ -1,4 +1,10 @@
 <resources>
     <declare-styleable name="WhiteboardView">
+        <attr name="touchMode">
+            <enum name="eraser" value="0" />
+            <enum name="marker" value="1" />
+        </attr>
+        <attr name="markerThickness" format="dimension" />
+        <attr name="markerColor" format="color" />
     </declare-styleable>
 </resources>
