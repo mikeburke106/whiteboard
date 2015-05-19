@@ -337,6 +337,13 @@ public class WhiteboardView extends View {
     }
 
     /**
+     * Redraws the entire whiteboard from scratch
+     */
+    public void redraw(){
+        redrawCanvasBitmap();
+    }
+
+    /**
      * Interface to listen for path-based events occurring on this whiteboard.
      */
     public interface PathListener{

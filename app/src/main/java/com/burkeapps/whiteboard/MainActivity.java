@@ -2,7 +2,9 @@ package com.burkeapps.whiteboard;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -104,6 +106,19 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        //redraw whiteboard after views have stabilized
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                whiteboard.redraw();
+            }
+        }, 200);
     }
 
     @Override
