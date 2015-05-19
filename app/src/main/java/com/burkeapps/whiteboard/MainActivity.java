@@ -16,7 +16,28 @@ public class MainActivity extends ActionBarActivity {
     private static final int REQ_THICKNESS = 1;
 
     WhiteboardView whiteboard;
-    MenuItem colorsItem, eraserItem, markerItem;
+    MenuItem colorsItem, eraserItem, markerItem, undoItem, redoItem;
+    private WhiteboardView.PathListener pathListener = new WhiteboardView.PathListener() {
+        @Override
+        public void onPathCompleted() {
+            redrawMenuItems();
+        }
+
+        @Override
+        public void onPathUndone() {
+            redrawMenuItems();
+        }
+
+        @Override
+        public void onPathRedone() {
+            redrawMenuItems();
+        }
+
+        @Override
+        public void onPathsCleared() {
+            redrawMenuItems();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         whiteboard = (WhiteboardView) findViewById(R.id.whiteboard);
+        whiteboard.setPathListener(pathListener);
     }
 
     @Override
@@ -32,18 +54,23 @@ public class MainActivity extends ActionBarActivity {
         eraserItem = menu.findItem(R.id.action_eraser);
         markerItem = menu.findItem(R.id.action_marker);
         colorsItem = menu.findItem(R.id.action_colors);
-        redrawMenuItems(whiteboard.getTouchMode());
+        undoItem = menu.findItem(R.id.action_undo);
+        redoItem = menu.findItem(R.id.action_redo);
+        redrawMenuItems();
         return true;
     }
 
-    private void redrawMenuItems(int whiteboardMode){
-        boolean eraseMode = (whiteboardMode == WhiteboardView.MODE_ERASER);
+    private void redrawMenuItems(){
+        boolean eraseMode = (whiteboard.getTouchMode() == WhiteboardView.MODE_ERASER);
 
         // if whiteboard is in erase mode, hide eraser and colors menu items and
         // show marker menu item.  Otherwise, show the opposite.
-        eraserItem.setVisible( ! eraseMode );
-        colorsItem.setVisible( ! eraseMode );
+        eraserItem.setVisible(!eraseMode);
+        colorsItem.setVisible(!eraseMode);
         markerItem.setVisible(eraseMode);
+
+        undoItem.setVisible(whiteboard.canUndo());
+        redoItem.setVisible(whiteboard.canRedo());
     }
 
     @Override
@@ -65,6 +92,12 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.action_thickness:
                 changeMarkerThickness();
+                return true;
+            case R.id.action_undo:
+                undoLastPath();
+                return true;
+            case R.id.action_redo:
+                redoLastPath();
                 return true;
             default:
                 break;
@@ -99,12 +132,12 @@ public class MainActivity extends ActionBarActivity {
 
     private void activateEraser(){
         whiteboard.activateEraser();
-        redrawMenuItems(whiteboard.getTouchMode());
+        redrawMenuItems();
     }
 
     private void activateMarker(){
         whiteboard.activateMarker();
-        redrawMenuItems(whiteboard.getTouchMode());
+        redrawMenuItems();
     }
 
     private void changeMarkerColor() {
@@ -113,5 +146,15 @@ public class MainActivity extends ActionBarActivity {
 
     private void changeMarkerThickness() {
         startActivityForResult(new Intent(MainActivity.this, ThicknessSelectActivity.class), REQ_THICKNESS);
+    }
+
+    private void undoLastPath() {
+        whiteboard.undo();
+        redrawMenuItems();
+    }
+
+    private void redoLastPath() {
+        whiteboard.redo();
+        redrawMenuItems();
     }
 }

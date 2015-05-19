@@ -12,6 +12,8 @@ import android.view.View;
 
 import com.burkeapps.whiteboard.R;
 
+import java.util.LinkedList;
+
 /**
  * A WhiteboardView provides a blank whiteboard which is available for drawing.  Different colors
  * of markers can be used on the whiteboard and previous drawings can be erased using an eraser
@@ -32,6 +34,8 @@ public class WhiteboardView extends View {
     Paint touchPaint, canvasPaint;
     Bitmap canvasBitmap;
     Canvas touchCanvas;
+    LinkedList<PaintPath> pathHistory, undoHistory;
+    PathListener l;
     int canvasHeight, canvasWidth;
     int markerColor, eraserColor;
     int markerThickness;
@@ -67,6 +71,7 @@ public class WhiteboardView extends View {
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
+        initHistory();
     }
 
     private int getDefaultEraserColor() {
@@ -106,7 +111,18 @@ public class WhiteboardView extends View {
         touchPath.reset();
     }
 
+    private void initHistory() {
+        pathHistory = new LinkedList<>();
+        undoHistory = new LinkedList<>();
+    }
+
     private void initCanvas(){
+        // free up any existing bitmap from memory
+        if(canvasBitmap != null){
+            canvasBitmap.recycle();
+        }
+
+        // and create a new bitmap based on current size
         canvasBitmap = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888);
         touchCanvas = new Canvas(canvasBitmap);
     }
@@ -140,7 +156,12 @@ public class WhiteboardView extends View {
             case MotionEvent.ACTION_UP:
                 // user released their touch, draw it on the canvas and reset the path
                 touchCanvas.drawPath(touchPath, touchPaint);
-                touchPath.reset();
+                recordPath();
+
+                // notify listener that a path was drawn
+                if(l != null){
+                    l.onPathCompleted();
+                }
                 break;
             default:
                 // don't care about this touch event - tell system we didn't process it
@@ -150,6 +171,30 @@ public class WhiteboardView extends View {
         // re-draw and tell system we processed this event by returning true
         invalidate();
         return true;
+    }
+
+    private void recordPath() {
+        // save the current path to history and reset the path
+        // TODO: store paint items in cache to avoid creating duplicate paint objects
+        PaintPath paintPath = new PaintPath(new Paint(touchPaint), new Path(touchPath));
+        pathHistory.push(paintPath);
+        touchPath.reset();
+
+        // as soon as another path has been entered, user can no longer re-do
+        undoHistory.clear();
+    }
+
+    private void redrawCanvasBitmap() {
+        // create a new canvas
+        initCanvas();
+
+        // and draw the path history over it
+        for(int i=pathHistory.size()-1; i>=0; i--){
+            PaintPath paintPath = pathHistory.get(i);
+            touchCanvas.drawPath(paintPath.getPath(), paintPath.getPaint());
+        }
+
+        invalidate();
     }
 
     @Override
@@ -171,6 +216,11 @@ public class WhiteboardView extends View {
         // re-initialize our touch objects
         initTouchPath();
         initCanvas();
+        initHistory();
+
+        if(l != null){
+            l.onPathsCleared();
+        }
 
         // re-draw the whiteboard
         invalidate();
@@ -216,8 +266,83 @@ public class WhiteboardView extends View {
         return touchMode;
     }
 
+    /**
+     * Sets the current thickness of the marker/eraser.  The input value should take
+     * screen density into account.
+     *
+     * @param thickness The thickness to set
+     */
     public void setMarkerThickness(int thickness){
         markerThickness = thickness;
         touchPaint.setStrokeWidth(thickness);
+    }
+
+    /**
+     * Undoes the previously drawn path.  If no path has been drawn, does nothing.
+     */
+    public void undo(){
+        if(pathHistory.size() > 0){
+            PaintPath undoPath = pathHistory.pop();
+            undoHistory.push(undoPath);
+            redrawCanvasBitmap();
+
+            // notify listener
+            if(l != null){
+                l.onPathUndone();
+            }
+        }
+    }
+
+    /**
+     * Redoes the previously undone path.  If no path has been undone, does nothing.
+     */
+    public void redo(){
+        if(undoHistory.size() > 0){
+            PaintPath lastUndone = undoHistory.pop();
+            pathHistory.push(lastUndone);
+            redrawCanvasBitmap();
+
+            // notify listener
+            if(l != null){
+                l.onPathRedone();
+            }
+        }
+    }
+
+    /**
+     * Indicates whether the whiteboard can undo a path.
+     *
+     * @return True if a path can be undone, false otherwise.
+     */
+    public boolean canUndo(){
+        return (pathHistory.size() > 0);
+    }
+
+    /**
+     * Indicates whether the whiteboard can redo a path.
+     *
+     * @return True if a path can be redone, false otherwise.
+     */
+    public boolean canRedo(){
+        return (undoHistory.size() > 0);
+    }
+
+    /**
+     * Sets a path listener for this whiteboard.
+     *
+     * @param l The listener to set
+     */
+    public void setPathListener(PathListener l){
+        this.l = l;
+    }
+
+    /**
+     * Interface to listen for path-based events occurring on this whiteboard.
+     */
+    public interface PathListener{
+        void onPathCompleted();
+        void onPathUndone();
+        void onPathRedone();
+        void onPathsCleared();
     }
 }

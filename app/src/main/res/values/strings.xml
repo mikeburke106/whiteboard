@@ -9,6 +9,8 @@
     <string name="action_eraser">Eraser</string>
     <string name="action_marker">Marker</string>
     <string name="action_thickness">Thickness</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_redo">Redo</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
