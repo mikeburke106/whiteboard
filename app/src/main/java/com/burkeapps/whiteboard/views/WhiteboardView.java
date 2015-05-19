@@ -57,6 +57,7 @@ public class WhiteboardView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(attrs,
                 R.styleable.WhiteboardView, defStyle, 0);
 
+        eraserColor = getDefaultEraserColor();
         markerColor = a.getColor(R.styleable.WhiteboardView_markerColor, getDefaultMarkerColor());
         markerThickness = a.getDimensionPixelSize(R.styleable.WhiteboardView_markerThickness,
                 getDefaultMarkerThickness());
@@ -66,6 +67,10 @@ public class WhiteboardView extends View {
         initTouchPaint();
         initCanvasPaint();
         initTouchPath();
+    }
+
+    private int getDefaultEraserColor() {
+        return getContext().getResources().getColor(R.color.whiteboard_default_eraser_color);
     }
 
     private int getDefaultMarkerThickness() {
