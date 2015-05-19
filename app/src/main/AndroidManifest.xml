@@ -20,8 +20,17 @@
         <activity
             android:name=".ColorSelectActivity"
             android:label="@string/title_activity_color_select"
-            android:theme="@android:style/Theme.Dialog"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:theme="@android:style/Theme.Dialog" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.burkeapps.whiteboard.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ThicknessSelectActivity"
+            android:label="@string/title_activity_thickness_select"
+            android:parentActivityName=".MainActivity"
+            android:theme="@android:style/Theme.Dialog" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.burkeapps.whiteboard.MainActivity" />

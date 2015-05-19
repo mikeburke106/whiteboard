@@ -2,12 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
-    <item android:id="@+id/action_eraser" android:title="@string/action_eraser"
-        android:orderInCategory="0" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_marker" android:title="@string/action_marker"
         android:orderInCategory="0" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_colors" android:title="@string/action_colors"
         android:orderInCategory="10" app:showAsAction="ifRoom" />
-    <item android:id="@+id/action_clear" android:title="@string/action_clear"
+    <item android:id="@+id/action_thickness" android:title="@string/action_thickness"
+        android:orderInCategory="20" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_eraser" android:title="@string/action_eraser"
         android:orderInCategory="30" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_clear" android:title="@string/action_clear"
+        android:orderInCategory="40" app:showAsAction="ifRoom" />
 </menu>

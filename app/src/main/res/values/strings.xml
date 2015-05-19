@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">Whiteboard</string>
-    <string name="title_activity_color_select">Select a Color</string>
+    <string name="title_activity_color_select">Marker Color</string>
+    <string name="title_activity_thickness_select">Marker Thickness</string>
 
     <!--Action bar strings-->
     <string name="action_clear">Clear</string>
     <string name="action_colors">Colors</string>
     <string name="action_eraser">Eraser</string>
     <string name="action_marker">Marker</string>
+    <string name="action_thickness">Thickness</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

@@ -179,7 +179,7 @@ public class WhiteboardView extends View {
      *
      * @param color Color of the marker to set
      */
-    public void setDrawColor(int color){
+    public void setMarkerColor(int color){
         markerColor = color;
         if(touchMode != MODE_ERASER){
             touchPaint.setColor(markerColor);
@@ -209,5 +209,10 @@ public class WhiteboardView extends View {
      */
     public int getTouchMode(){
         return touchMode;
+    }
+
+    public void setMarkerThickness(int thickness){
+        markerThickness = thickness;
+        touchPaint.setStrokeWidth(thickness);
     }
 }

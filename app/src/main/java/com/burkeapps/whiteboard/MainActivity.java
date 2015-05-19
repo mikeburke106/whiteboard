@@ -12,6 +12,9 @@ import com.burkeapps.whiteboard.views.WhiteboardView;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final int REQ_COLOR = 0;
+    private static final int REQ_THICKNESS = 1;
+
     WhiteboardView whiteboard;
     MenuItem colorsItem, eraserItem, markerItem;
 
@@ -58,7 +61,10 @@ public class MainActivity extends ActionBarActivity {
                 eraseWhiteboard();
                 return true;
             case R.id.action_colors:
-                changeWhiteboardColor();
+                changeMarkerColor();
+                return true;
+            case R.id.action_thickness:
+                changeMarkerThickness();
                 return true;
             default:
                 break;
@@ -69,9 +75,22 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode != 0 || resultCode != Activity.RESULT_OK) return;
-        int color = ColorSelectActivity.getColor(data);
-        whiteboard.setDrawColor(color);
+        if(resultCode != Activity.RESULT_OK) return;
+        switch(requestCode){
+            case REQ_COLOR:
+                int color = ColorSelectActivity.getColor(data);
+                whiteboard.setMarkerColor(color);
+                break;
+            case REQ_THICKNESS:
+                float density = getResources().getDisplayMetrics().density;
+                int thickness = ThicknessSelectActivity.getThickness(data, density);
+                if(thickness > 0) {
+                    whiteboard.setMarkerThickness(thickness);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     private void eraseWhiteboard(){
@@ -88,7 +107,11 @@ public class MainActivity extends ActionBarActivity {
         redrawMenuItems(whiteboard.getTouchMode());
     }
 
-    private void changeWhiteboardColor() {
-        startActivityForResult(new Intent(MainActivity.this, ColorSelectActivity.class), 0);
+    private void changeMarkerColor() {
+        startActivityForResult(new Intent(MainActivity.this, ColorSelectActivity.class), REQ_COLOR);
+    }
+
+    private void changeMarkerThickness() {
+        startActivityForResult(new Intent(MainActivity.this, ThicknessSelectActivity.class), REQ_THICKNESS);
     }
 }
