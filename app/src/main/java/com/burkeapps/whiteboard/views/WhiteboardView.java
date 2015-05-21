@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,7 +33,7 @@ public class WhiteboardView extends View {
     public static final int MODE_MARKER = 1;
 
     Path touchPath;
-    Paint touchPaint, canvasPaint;
+    Paint touchPaint, canvasPaint, backgroundPaint;
     Bitmap canvasBitmap;
     Canvas touchCanvas;
     LinkedList<PaintPath> pathHistory, undoHistory;
@@ -66,9 +68,11 @@ public class WhiteboardView extends View {
         markerThickness = a.getDimensionPixelSize(R.styleable.WhiteboardView_markerThickness,
                 getDefaultMarkerThickness());
         touchMode = a.getInt(R.styleable.WhiteboardView_touchMode, touchMode);
+        a.recycle();
 
         // lazily instantiate our objects
         initTouchPaint();
+        initBackgroundPaint();
         initCanvasPaint();
         initTouchPath();
         initHistory();
@@ -93,6 +97,15 @@ public class WhiteboardView extends View {
             touchPaint.setColor( (touchMode == MODE_ERASER) ? eraserColor : markerColor);
             touchPaint.setStyle(Paint.Style.STROKE);
             touchPaint.setStrokeWidth(markerThickness);
+        }
+    }
+
+    private void initBackgroundPaint(){
+        if(backgroundPaint == null){
+            backgroundPaint = new Paint();
+            backgroundPaint.setAntiAlias(true);
+            backgroundPaint.setColor(Color.WHITE);
+            backgroundPaint.setStyle(Paint.Style.FILL);
         }
     }
 
@@ -142,7 +155,7 @@ public class WhiteboardView extends View {
     }
 
     @Override
-    public boolean onTouchEvent (MotionEvent event){
+    public boolean onTouchEvent (@NonNull MotionEvent event){
         int action = event.getAction();
         switch(action){
             case MotionEvent.ACTION_DOWN:
@@ -341,6 +354,20 @@ public class WhiteboardView extends View {
      */
     public void redraw(){
         redrawCanvasBitmap();
+    }
+
+    /**
+     * Creates a screenshot bitmap of the current status of the whiteboard.
+     *
+     * @return A bitmap representation of the whiteboard
+     */
+    public Bitmap screenshot(){
+        Bitmap result = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888);
+        Canvas resultCanvas = new Canvas(result);
+        resultCanvas.drawPaint(backgroundPaint);
+        resultCanvas.drawBitmap(canvasBitmap, 0, 0, null);
+
+        return result;
     }
 
     /**

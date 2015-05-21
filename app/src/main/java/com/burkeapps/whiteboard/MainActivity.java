@@ -3,11 +3,15 @@ package com.burkeapps.whiteboard;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.burkeapps.whiteboard.views.WhiteboardView;
 
@@ -101,6 +105,9 @@ public class MainActivity extends ActionBarActivity {
             case R.id.action_redo:
                 redoLastPath();
                 return true;
+            case R.id.action_share:
+                shareWhiteboardImage();
+                return true;
             default:
                 break;
         }
@@ -165,11 +172,30 @@ public class MainActivity extends ActionBarActivity {
 
     private void undoLastPath() {
         whiteboard.undo();
-        redrawMenuItems();
     }
 
     private void redoLastPath() {
         whiteboard.redo();
-        redrawMenuItems();
+    }
+
+    private void shareWhiteboardImage() {
+        Toast.makeText(this, "Saving image...", Toast.LENGTH_LONG).show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                showShareIntent();
+            }
+        }).start();
+    }
+
+    private void showShareIntent() {
+        final Bitmap image = whiteboard.screenshot();
+        final String filename = "whiteboard-image" + String.valueOf(System.currentTimeMillis());
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), image, filename, null);
+
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("application/image");
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+        startActivity(Intent.createChooser(sendIntent, "Share Image"));
     }
 }
