@@ -25,10 +25,3 @@ You are free to make design and architectural choices in this challenge.  We enc
 2. Must include the 5 basic features and at least one of the additional features.
 
 While we require the app to run on phones, you are encouraged to make the app capable to run on tablets as well.  Rotation is not required, but preferred.  You are free to use Gradle, Maven or other open source tools if you wish to do so.
-
-##### Important Notes
-
-1. Create a private github repository and invite: adeviadoug to the repo. Doug likes to watch the commit stream to see your thinking process.  Please commit early and often (within reason) so he can see the evolution of the app.
-2. Have fun! If you would like to add additional features (beyond the requirements) to the app, feel free to do so.
-3. Send Doug an email (doug@varsitytutors.com) once you’re done with the app, include the URL to the github submission (this makes it easier for him to find).
-4. If you have any questions, feel free to ask.  All questions and any comments that you have post submission (which are helpful in our code review) will be passed along during the code review
